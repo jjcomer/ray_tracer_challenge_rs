@@ -13,13 +13,17 @@ fn get_index(width: usize, x: usize, y: usize) -> usize {
 }
 
 impl Canvas {
-    pub fn new(height: usize, width: usize) -> Self {
-        let pixels = vec![Tuple::new_colour(0.0, 0.0, 0.0); height * width];
+    pub fn new_fill(height: usize, width: usize, fill: Tuple) -> Self {
+        let pixels = vec![fill; height * width];
         Canvas {
             pixels,
             height,
             width,
         }
+    }
+
+    pub fn new(height: usize, width: usize) -> Self {
+        Canvas::new_fill(height, width, Tuple::new_colour(0.0, 0.0, 0.0))
     }
 
     pub fn set_pixel(&mut self, x: usize, y: usize, colour: &Tuple) -> &mut Self {
@@ -87,5 +91,27 @@ mod tests {
         let update_colour = Tuple::new_colour(1.0, 0.0, 0.0);
         canvas.set_pixel(5, 5, &update_colour);
         assert_eq!(canvas.get_pixel(5, 5).unwrap(), &update_colour);
+    }
+
+    #[test]
+    fn generate_ppm() {
+        let mut canvas = Canvas::new(2, 2);
+        canvas.set_pixel(0, 0, &Tuple::new_colour(1.0, 0.0, 0.0));
+        let ppm = "P3\n2 2\n255\n255 0 0 0 0 0 0 0 0 0 0 0\n";
+        assert_eq!(ppm, canvas_to_ppm(&canvas).unwrap());
+    }
+
+    #[test]
+    fn long_lines() {
+        let canvas = Canvas::new_fill(10, 2, Tuple::new_colour(1.0, 0.8, 0.6));
+        let ppm = canvas_to_ppm(&canvas).unwrap();
+        assert!(ppm.lines().all(|l| l.len() <= 70));
+    }
+
+    #[test]
+    fn new_line_termination() {
+        let canvas = Canvas::new(2, 2);
+        let ppm = canvas_to_ppm(&canvas).unwrap();
+        assert_eq!(ppm.chars().last().unwrap(), '\n')
     }
 }
