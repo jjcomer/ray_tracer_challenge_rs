@@ -1,3 +1,4 @@
+use crate::util::eq_f32;
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
 #[derive(Debug, Clone, Copy)]
@@ -25,11 +26,11 @@ impl Tuple {
         Tuple::new_vector(r, g, b)
     }
 
-    fn is_point(&self) -> bool {
+    pub fn is_point(&self) -> bool {
         self.w == 1.0
     }
 
-    fn is_vector(&self) -> bool {
+    pub fn is_vector(&self) -> bool {
         self.w == 0.0
     }
 
@@ -54,23 +55,17 @@ impl Tuple {
         *self / magnitude
     }
 
-    fn dot(&self, rhs: &Tuple) -> f32 {
+    pub fn dot(&self, rhs: &Tuple) -> f32 {
         (self.x * rhs.x) + (self.y * rhs.y) + (self.z * rhs.z) + (self.w * rhs.w)
     }
 
-    fn cross(&self, rhs: &Tuple) -> Self {
+    pub fn cross(&self, rhs: &Tuple) -> Self {
         Tuple::new_vector(
             (self.y * rhs.z) - (self.z * rhs.y),
             (self.z * rhs.x) - (self.x * rhs.z),
             (self.x * rhs.y) - (self.y * rhs.x),
         )
     }
-}
-
-const EPSILON: f32 = 0.00001;
-
-fn eq_f32(a: f32, b: f32) -> bool {
-    (a - b).abs() < EPSILON
 }
 
 impl PartialEq for Tuple {
